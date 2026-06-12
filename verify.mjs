@@ -28,10 +28,10 @@ export async function doVerify(page, otp) {
 
   // ── Stage 04: OTP filled ─────────────────────────────────────────────────────
 
-  await page.screenshot({ path: '/app/screenshot-04-otp-filled.png', fullPage: true });
-  console.log('Screenshot saved: /app/screenshot-04-otp-filled.png');
-  writeFileSync('/app/dom-04-otp-filled.html', await page.content(), 'utf-8');
-  console.log('DOM saved: /app/dom-04-otp-filled.html');
+  await page.screenshot({ path: '/data/screenshot-04-otp-filled.png', fullPage: true });
+  console.log('Screenshot saved: /data/screenshot-04-otp-filled.png');
+  writeFileSync('/data/dom-04-otp-filled.html', await page.content(), 'utf-8');
+  console.log('DOM saved: /data/dom-04-otp-filled.html');
 
   // ── Submit OTP ───────────────────────────────────────────────────────────────
   // Button class is "main-button wave-btn" — the wave-btn class is unique to
@@ -50,8 +50,8 @@ export async function doVerify(page, otp) {
 
   // ── Stage 05: authenticated ──────────────────────────────────────────────────
 
-  await page.screenshot({ path: '/app/screenshot-05-authenticated.png', fullPage: true });
-  console.log('Screenshot saved: /app/screenshot-05-authenticated.png');
-  writeFileSync('/app/dom-05-authenticated.html', await page.content(), 'utf-8');
-  console.log('DOM saved: /app/dom-05-authenticated.html');
+  await page.screenshot({ path: '/data/screenshot-05-authenticated.png', fullPage: true });
+  console.log('Screenshot saved: /data/screenshot-05-authenticated.png');
+  writeFileSync('/data/dom-05-authenticated.html', await page.content(), 'utf-8');
+  console.log('DOM saved: /data/dom-05-authenticated.html');
 }

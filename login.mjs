@@ -47,10 +47,10 @@ export async function doLogin(idNumber, phoneNumber) {
 
   // ── Stage 01: page loaded — empty form ─────────────────────────────────────
 
-  await page.screenshot({ path: '/app/screenshot-01-page-loaded.png', fullPage: true });
-  console.log('Screenshot saved: /app/screenshot-01-page-loaded.png');
-  writeFileSync('/app/dom-01-page-loaded.html', await page.content(), 'utf-8');
-  console.log('DOM saved: /app/dom-01-page-loaded.html');
+  await page.screenshot({ path: '/data/screenshot-01-page-loaded.png', fullPage: true });
+  console.log('Screenshot saved: /data/screenshot-01-page-loaded.png');
+  writeFileSync('/data/dom-01-page-loaded.html', await page.content(), 'utf-8');
+  console.log('DOM saved: /data/dom-01-page-loaded.html');
 
   // ── Fill ID number (ת.ז/ח.פ) ────────────────────────────────────────────────
 
@@ -75,10 +75,10 @@ export async function doLogin(idNumber, phoneNumber) {
 
   // ── Stage 02: credentials filled ────────────────────────────────────────────
 
-  await page.screenshot({ path: '/app/screenshot-02-credentials-filled.png', fullPage: true });
-  console.log('Screenshot saved: /app/screenshot-02-credentials-filled.png');
-  writeFileSync('/app/dom-02-credentials-filled.html', await page.content(), 'utf-8');
-  console.log('DOM saved: /app/dom-02-credentials-filled.html');
+  await page.screenshot({ path: '/data/screenshot-02-credentials-filled.png', fullPage: true });
+  console.log('Screenshot saved: /data/screenshot-02-credentials-filled.png');
+  writeFileSync('/data/dom-02-credentials-filled.html', await page.content(), 'utf-8');
+  console.log('DOM saved: /data/dom-02-credentials-filled.html');
 
   // ── Click submit (שליחה) ────────────────────────────────────────────────────
   // The terms checkbox is pre-checked in the DOM; SMS send-type is selected by
@@ -90,10 +90,10 @@ export async function doLogin(idNumber, phoneNumber) {
 
   // ── Stage 03: OTP screen ────────────────────────────────────────────────────
 
-  await page.screenshot({ path: '/app/screenshot-03-otp-screen.png', fullPage: true });
-  console.log('Screenshot saved: /app/screenshot-03-otp-screen.png');
-  writeFileSync('/app/dom-03-otp-screen.html', await page.content(), 'utf-8');
-  console.log('DOM saved: /app/dom-03-otp-screen.html');
+  await page.screenshot({ path: '/data/screenshot-03-otp-screen.png', fullPage: true });
+  console.log('Screenshot saved: /data/screenshot-03-otp-screen.png');
+  writeFileSync('/data/dom-03-otp-screen.html', await page.content(), 'utf-8');
+  console.log('DOM saved: /data/dom-03-otp-screen.html');
 
   return page;
 }
