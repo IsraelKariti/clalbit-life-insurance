@@ -46,7 +46,12 @@ export async function doVerify(page, otp) {
 
   console.log('Clicking OTP submit (כניסה לחשבון)...');
   await page.click('button.wave-btn');
-  await page.waitForTimeout(3000);
+
+  // Wait for the redirect to /portfolio/ then for Angular to render the dashboard
+  console.log('Waiting for redirect to portfolio...');
+  await page.waitForURL('**/portfolio/**', { timeout: 15_000 });
+  console.log('Waiting for personal account component to render...');
+  await page.waitForSelector('app-personal-account', { state: 'visible', timeout: 15_000 });
 
   // ── Stage 05: authenticated ──────────────────────────────────────────────────
 
