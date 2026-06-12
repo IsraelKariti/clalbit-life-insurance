@@ -67,14 +67,41 @@ export async function doReport(page) {
   console.log('DOM saved: /data/dom-08-results-found.html');
 
   // ── Click download button (↓) and save file ──────────────────────────────────
+  // The <a class="table-item-absolute"> has no href — Angular handles the click.
+  // getByRole('link') won't match it (ARIA "link" role requires href), so use
+  // a class selector. Also watch for new-page popup as a fallback download path.
 
   console.log('Clicking download button...');
-  const [download] = await Promise.all([
-    page.waitForEvent('download', { timeout: 30_000 }),
-    page.locator('table tbody tr').first().getByRole('link').click(),
-  ]);
 
-  const downloadPath = '/data/report-download.' + (download.suggestedFilename().split('.').pop() || 'pdf');
-  await download.saveAs(downloadPath);
-  console.log(`Report downloaded: ${downloadPath}`);
+  const downloadEvent = page.waitForEvent('download', { timeout: 30_000 }).catch(() => null);
+  const newPageEvent = page.context().waitForEvent('page', { timeout: 20_000 }).catch(() => null);
+
+  await page.locator('a.table-item-absolute').first().click();
+
+  // Stage 09: capture state right after click for debugging
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: '/data/screenshot-09-after-download-click.png', fullPage: true });
+  console.log('Screenshot saved: /data/screenshot-09-after-download-click.png');
+  writeFileSync('/data/dom-09-after-download-click.html', await page.content(), 'utf-8');
+  console.log('DOM saved: /data/dom-09-after-download-click.html');
+
+  const download = await downloadEvent;
+  const newPage = await newPageEvent;
+
+  if (download) {
+    const ext = download.suggestedFilename().split('.').pop() || 'pdf';
+    const downloadPath = `/data/report-download.${ext}`;
+    await download.saveAs(downloadPath);
+    console.log(`Report saved: ${downloadPath}`);
+  } else if (newPage) {
+    const url = newPage.url();
+    console.log(`Download opened new page/popup: ${url}`);
+    await newPage.waitForLoadState('networkidle').catch(() => {});
+    await newPage.screenshot({ path: '/data/screenshot-10-download-page.png', fullPage: true });
+    writeFileSync('/data/dom-10-download-page.html', await newPage.content(), 'utf-8');
+    console.log('Screenshot and DOM of new page saved');
+    await newPage.close();
+  } else {
+    console.error('Download did not complete — no download event and no new page opened. Check screenshot-09.');
+  }
 }
