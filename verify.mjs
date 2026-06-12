@@ -2,8 +2,8 @@ import { writeFileSync } from 'fs';
 
 const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-// Types text one character at a time with a random delay between keystrokes
-// to keep Angular change detection happy and avoid bot-detection throttling.
+// Types text one character at a time with a random delay between keystrokes.
+// Angular Material inputs don't respond to .fill() for validation purposes.
 async function typeHuman(page, locator, text) {
   await locator.click();
   for (const char of String(text)) {
@@ -13,26 +13,16 @@ async function typeHuman(page, locator, text) {
 }
 
 // Receives the Playwright page that doLogin() left open on the OTP screen,
-// types the OTP, submits, and saves screenshots + DOM snapshots.
+// types the 6-digit OTP, submits, and saves screenshots + DOM snapshots.
 export async function doVerify(page, otp) {
   // ── Fill OTP ────────────────────────────────────────────────────────────────
-  // Clalbit's OTP input selector — check dom-03-otp-screen.html if this fails.
-  // Common patterns: formcontrolname="otp" / formcontrolname="code" / id*="otp"
-  const OTP_SELECTOR = [
-    'input[formcontrolname="otp"]',
-    'input[formcontrolname="code"]',
-    'input[formcontrolname="verificationCode"]',
-    'input[id*="otp" i]',
-    'input[id*="code" i]',
-    'input[name*="otp" i]',
-    'input[placeholder*="קוד"]',  // "code" in Hebrew
-  ].join(', ');
+  // formcontrolname="otp", maxlength=6, inputmode=numeric, autocomplete=one-time-code
 
   console.log('Waiting for OTP input...');
-  await page.waitForSelector(OTP_SELECTOR, { state: 'visible', timeout: 30_000 });
+  await page.waitForSelector('input[formcontrolname="otp"]', { state: 'visible', timeout: 30_000 });
 
   console.log(`Entering OTP: ${otp}`);
-  await typeHuman(page, page.locator(OTP_SELECTOR).first(), otp);
+  await typeHuman(page, page.locator('input[formcontrolname="otp"]'), otp);
   await page.keyboard.press('Tab');
   await page.waitForTimeout(rand(300, 500));
 
@@ -44,33 +34,18 @@ export async function doVerify(page, otp) {
   console.log('DOM saved: /app/dom-04-otp-filled.html');
 
   // ── Submit OTP ───────────────────────────────────────────────────────────────
+  // Button class is "main-button wave-btn" — the wave-btn class is unique to
+  // this button and avoids matching the site header's search button[type="submit"]
 
-  const OTP_SUBMIT_SELECTOR = [
-    'button[type="submit"]',
-    'button.submit-btn',
-    'button.btn-submit',
-    'button.login-btn',
-    'button[class*="submit" i]',
-    'button[class*="confirm" i]',
-  ].join(', ');
-
-  // Wait for the submit button to become enabled after OTP validation
   console.log('Waiting for OTP submit button to become enabled...');
   try {
-    await page.waitForFunction(
-      selector => {
-        const btn = document.querySelector(selector);
-        return btn && !btn.disabled;
-      },
-      OTP_SUBMIT_SELECTOR,
-      { timeout: 10_000 }
-    );
+    await page.waitForSelector('button.wave-btn:not([disabled])', { timeout: 10_000 });
   } catch {
-    console.warn('OTP submit button did not become enabled within 10 s — the OTP may be wrong or expired.');
+    console.warn('OTP submit button did not become enabled within 10 s.');
   }
 
-  console.log('Clicking OTP submit...');
-  await page.locator(OTP_SUBMIT_SELECTOR).first().click();
+  console.log('Clicking OTP submit (כניסה לחשבון)...');
+  await page.click('button.wave-btn');
   await page.waitForTimeout(3000);
 
   // ── Stage 05: authenticated ──────────────────────────────────────────────────
