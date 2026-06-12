@@ -1,2 +1,5 @@
 local.config.json
 node_modules/
+doms/
+screenshots/
+remote-package.json
