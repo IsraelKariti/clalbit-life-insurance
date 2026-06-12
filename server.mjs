@@ -1,6 +1,7 @@
 import http from 'http';
 import { doLogin } from './login.mjs';
 import { doVerify } from './verify.mjs';
+import { doReport } from './report.mjs';
 
 const PORT = process.env.PORT || 8080;
 
@@ -75,6 +76,25 @@ const server = http.createServer(async (req, res) => {
     doVerify(activePage, otp)
       .then(() => console.log('[/verify] OTP submitted successfully.'))
       .catch(err => console.error('[/verify] Error:', err));
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ status: 'triggered' }));
+    return;
+  }
+
+  // ── POST /report ────────────────────────────────────────────────────────────
+  // Navigates to the reports section, selects דו"ח שנתי מקוצר, searches,
+  // and downloads the report. Requires an active authenticated session.
+  if (req.url === '/report') {
+    if (!activePage) {
+      res.writeHead(409, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'no active session — call /login and /verify first' }));
+      return;
+    }
+
+    doReport(activePage)
+      .then(() => console.log('[/report] Report downloaded successfully.'))
+      .catch(err => console.error('[/report] Error:', err));
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'triggered' }));
